@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block title %}Todos{% endblock %}
+ {% block body %}
+  <div class="container">
+   <div class="shadow-lg p-3 mb-5 bg-white rounded" style="padding: 10px !important; margin: 5px !important;">
+    <div class="row" style="margin: 10px;">
+     <div class="col-md-8 col-lg-8">
+      <div class="row">
+       <p style="font-weight: bold; color: black; font-size: 20px;">{{ task.title }}</p>
+      </div>
+      <div class="row">
+       <p>{{ task.content }}</p>
+      </div>
+     </div>
+     <div class="col-md-4 col-lg-4" style="text-align: right">
+      {% if task.status %}
+       <button type="submit" class="btn btn-danger">Delete</button>
+      {% else %}
+       <button type="submit" class="btn btn-success">Done</button>
+      {% endif %}
+     </div>
+    </div>
+   </div>
+  </div>
+ {% endblock %}
