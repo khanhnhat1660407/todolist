@@ -4,10 +4,13 @@
      <div class="container">
          <div class="row" style="margin-top:30px;">
              <div class="col" id="left_panel">
+                 <div class="shadow-lg p-3 mb-5 bg-white rounded"  style="text-align: center; padding: 10px !important; margin: 5px !important;">
+                     <h2>Todo list</h2>
+                 </div>
+                 <div id="todolist" style="overflow-y: auto;">
                  {% for task in todos %}
                      <div class="shadow-lg p-3 mb-5 bg-white rounded"
                           style="padding: 10px !important; margin: 5px !important;">
-
                          <div class="row" style="margin: 10px;">
                              <div class="col-md-8 col-lg-8">
                                  <div class="row">
@@ -29,12 +32,16 @@
                          </div>
                      </div>
                  {% endfor %}
+                 </div>
              </div>
 
 
              <div class="col" id="right_panel">
                  <div class="shadow-lg p-3 mb-5 bg-white rounded"
                       style="padding: 10px !important; margin: 5px !important;">
+                     <div style="text-align: center">
+                         <h2>Add new task</h2>
+                     </div>
                      {# app/Resources/views/default/new.html.twig #}
 
                      {{ form_start(form) }}
@@ -46,5 +53,14 @@
              </div>
          </div>
      </div>
-
  {% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(()=>{
+            $("#form_save").click(function() {
+
+            });
+        })
+
+    </script>
+{% endblock %}

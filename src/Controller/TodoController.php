@@ -1,7 +1,10 @@
 <?php
  namespace  App\Controller;
+ use App\Entity\Task;
+
  use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  use Symfony\Component\HttpFoundation\Response;
+ use Symfony\Component\HttpFoundation\Request;
  use Symfony\Component\HttpFoundation\Session\SessionInterface;
  use Symfony\Component\Routing\Annotation\Route;
  use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,8 +13,7 @@
  use Symfony\Component\Form\Extension\Core\Type\TextType;
  use Symfony\Component\Form\Extension\Core\Type\TextareaType;
  use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-
-
+ use Doctrine\ORM\EntityManagerInterface;
 
 
 
@@ -20,42 +22,19 @@
  {
    private $session;
 
-   function RandomString()
-   {
-     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-     $randstring = '';
-     for ($i = 0; $i < 10; $i++) {
-       $randstring = $characters[rand(0, strlen($characters))];
-     }
-     return $randstring;
-   }
 
-
-   function __construct( SessionInterface $session)
-   {
-     $this->session = $session;
-     $this->session->set('todos', [
-       (object)[
-         'id' => 1568800232,
-         'title' => "Sáng mai đi học",
-         'content' => "Vào lớp lúc 9h bắt đầu học là 9h30",
-         'status' => false
-       ],
-       (object)[
-         'id' => 1568800254,
-         'title' => "Tối đi cua gái",
-         'content' => "Cua gái thì mới có bồ được",
-         'status' => false
-       ],
-       (object)[
-         'id' => 1568800260,
-         'title' => "Chiều đi tiễn thằng chiến ở sân bay",
-         'content' => "Nó bay lúc 5h, sân quốc tế",
-         'status' => false
-       ],
-
-     ]);
-   }
+//   function __construct( SessionInterface $session)
+//   {
+//     $this->session = $session;
+//
+//     $this->session->set('todos', [
+//       new Task( 1568800232,"Sáng mai đi học","Vào lớp lúc 9h bắt đầu học là 9h30",false),
+//       new Task( 1568800254,"Chiều đi đá banh","Sân vận động quốc gia Chảo lửa",false),
+//       new Task( 1568800260,"Tối đi uống cf","Uống cf cho não nở ra",false),
+//       new Task( 1568800260,"Tối đi uống cf","Uống cf cho não nở ra",false),
+//     ]);
+//
+//   }
 
    public function createTaskForm()
    {
@@ -85,17 +64,42 @@
          ])
        ->getForm();
 
-        return $form->createView();
+        return $form;
+   }
+
+   private function getTodoList()
+   {
+     $todolist =  $this->getDoctrine()
+       ->getRepository(Task::class)
+       ->findAll();
+     return $todolist;
    }
 
   /**
    * @Route("/", name = "index")
    * @Method({"GET"})
   */
-   public function index(){
+   public function index(Request $request){
+
+     $em =  $this->getDoctrine()->getManager();
+     $todoList = $this->getTodoList();
+     $request_data = null;
+
      $form = $this->createTaskForm();
-//     $string = date_timestamp_get(date_create());
-     return $this->render('todo/index.html.twig', ["todos" => $this->session->get('todos'),"form" => $form]);
+     $form->handleRequest($request);
+
+     if ($form->isSubmitted() && $form->isValid()) {
+        $id_generated = date_timestamp_get(date_create());
+        $request_data = $form->getData();
+        $task = new Task( $request_data['Title'], $request_data['Content'],0);
+
+        $em->persist($task);
+        $em->flush();
+        $todoList = $this->getTodoList();
+        return $this->render('todo/index.html.twig', ["todos" => $todoList,"form" => $form->createView()]);
+     }
+
+     return $this->render('todo/index.html.twig', ["todos" => $todoList,"form" => $form->createView()]);
    }
 
    /**
@@ -103,11 +107,13 @@
     * @Method({"GET"})
     */
    public function taskdetail($id){
-     $todolist = $this->session->get('todos');
+     $todolist = $this->getDoctrine()
+       ->getRepository(Task::class)
+       ->findAll();
      $taskdetail = null;
      foreach ($todolist as $task)
      {
-       if($task->id == $id)
+       if($task->getId() == $id)
        {
          $taskdetail = $task;
        }
