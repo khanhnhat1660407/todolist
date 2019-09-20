@@ -23,9 +23,9 @@
                              </div>
                              <div class="col-md-4 col-lg-4" style="text-align: right">
                                  {% if task.status %}
-                                     <button type="submit" class="btn btn-danger">Delete</button>
+                                     <a href="/task/delete/{{ task.id }}" class="btn btn-danger">Delete</a>
                                  {% else %}
-                                     <button type="submit" class="btn btn-success">Done</button>
+                                     <a href="/task/done/{{ task.id }}" class="btn btn-success">Done</a>
                                  {% endif %}
                              </div>
 
@@ -57,9 +57,8 @@
 {% block javascripts %}
     <script>
         $(document).ready(()=>{
-            $("#form_save").click(function() {
-
-            });
+            $("#form_Title").val("");
+            $("#form_Content").val("");
         })
 
     </script>

@@ -77,9 +77,9 @@
 
   /**
    * @Route("/", name = "index")
-   * @Method({"GET"})
+   * @Method({"GET, POST"})
   */
-   public function index(Request $request){
+   public function index(Request $request ){
 
      $em =  $this->getDoctrine()->getManager();
      $todoList = $this->getTodoList();
@@ -103,29 +103,70 @@
    }
 
    /**
-    * @Route("/task/{id}", name = "task-detail")
+    * @Route("/task/detail/{id}", name = "task-detail")
     * @Method({"GET"})
     */
-   public function taskdetail($id){
-     $todolist = $this->getDoctrine()
+   public function showTaskDetail($id){
+     $task = null;
+     $task = $this->getDoctrine()
        ->getRepository(Task::class)
-       ->findAll();
-     $taskdetail = null;
-     foreach ($todolist as $task)
+       ->findOneBy(["id"=>$id]);
+     if($task !=null)
      {
-       if($task->getId() == $id)
-       {
-         $taskdetail = $task;
-       }
-     }
-     if($taskdetail !=null)
-     {
-       return $this->render('todo/taskdetail.html.twig', ["task" => $taskdetail]);
+       return $this->render('todo/taskdetail.html.twig', ["task" => $task]);
      }
      else
      {
        return new Response('<html><body><div style="text-align: center; margin-top: 100px;" ><h2>Task này chưa có nha!</h2></div></body></html>',404);
      }
    }
+
+   /**
+    * @Route("/task/done/{id}", name = "mark-task-done")
+    * @Method({"GET"})
+    */
+   public function markTaskDone( $id){
+     $em =  $this->getDoctrine()->getManager();
+     $task = null;
+     $task = $this->getDoctrine()
+       ->getRepository(Task::class)
+       ->findOneBy(["id"=>$id]);
+
+     if($task !=null)
+     {
+        $task->setStatus(1);
+        $em->persist($task);
+        $em->flush();
+        return $this->redirect('/');
+     }
+     else
+     {
+       return new Response('<html><body><div style="text-align: center; margin-top: 100px;" ><h2>Task này chưa có nha!</h2></div></body></html>',404);
+     }
+   }
+
+   /**
+    * @Route("/task/delete/{id}", name = "delete-task")
+    * @Method({"GET"})
+    */
+   public function deleteTask( $id){
+     $em =  $this->getDoctrine()->getManager();
+     $task = null;
+     $task = $this->getDoctrine()
+       ->getRepository(Task::class)
+       ->findOneBy(["id"=>$id]);
+
+     if($task !=null)
+     {
+       $em->remove($task);
+       $em->flush();
+       return $this->redirect('/');
+     }
+     else
+     {
+       return new Response('<html><body><div style="text-align: center; margin-top: 100px;" ><h2>Task này chưa có nha!</h2></div></body></html>',404);
+     }
+   }
+
 
  }
